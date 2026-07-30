@@ -1,0 +1,897 @@
+openapi: 3.0.3
+info:
+  title: Cinema Reservation API
+  description: API de gestion de cinéma. Autorisations par rôle par opération.
+  version: "1.0.0"
+
+servers:
+  - url: https://api.cinema.example.com/v1
+
+tags:
+  - name: Movies
+  - name: Projections
+  - name: Rooms
+  - name: Seats
+  - name: Reservations
+  - name: Users
+
+security:
+  - bearerAuth: []
+
+paths:
+
+  /movies:
+    get:
+      tags: [Movies]
+      summary: Liste des films
+      description: Public.
+      security: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Movie"
+    post:
+      tags: [Movies]
+      summary: Créer un film
+      description: MANAGER only.
+      security:
+        - bearerAuth: [MANAGER]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MovieInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Movie"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /movie/{id}:
+    get:
+      tags: [Movies]
+      summary: Détail d'un film
+      description: Public.
+      security: []
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Movie"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    put:
+      tags: [Movies]
+      summary: Mettre à jour un film
+      description: MANAGER only.
+      security:
+        - bearerAuth: [MANAGER]
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MovieInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Movie"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      tags: [Movies]
+      summary: Supprimer un film
+      description: MANAGER only.
+      security:
+        - bearerAuth: [MANAGER]
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      responses:
+        "200":
+          description: OK
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /projections:
+    get:
+      tags: [Projections]
+      summary: Liste des projections
+      description: Public.
+      security: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Projection"
+    post:
+      tags: [Projections]
+      summary: Créer une projection
+      description: MANAGER only.
+      security:
+        - bearerAuth: [MANAGER]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProjectionInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Projection"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /projection/{id}:
+    get:
+      tags: [Projections]
+      summary: Détail d'une projection
+      description: Public.
+      security: []
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Projection"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    put:
+      tags: [Projections]
+      summary: Mettre à jour une projection
+      description: MANAGER only.
+      security:
+        - bearerAuth: [MANAGER]
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProjectionInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Projection"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      tags: [Projections]
+      summary: Supprimer une projection
+      description: MANAGER only.
+      security:
+        - bearerAuth: [MANAGER]
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      responses:
+        "200":
+          description: OK
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /rooms:
+    get:
+      tags: [Rooms]
+      summary: Liste des salles
+      description: MANAGER, EMPLOYEE.
+      security:
+        - bearerAuth: [MANAGER]
+        - bearerAuth: [EMPLOYEE]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Room"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+    post:
+      tags: [Rooms]
+      summary: Créer une salle
+      description: MANAGER only.
+      security:
+        - bearerAuth: [MANAGER]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RoomInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Room"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /room/{id}:
+    get:
+      tags: [Rooms]
+      summary: Détail d'une salle
+      description: MANAGER, EMPLOYEE.
+      security:
+        - bearerAuth: [MANAGER]
+        - bearerAuth: [EMPLOYEE]
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Room"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    put:
+      tags: [Rooms]
+      summary: Mettre à jour une salle
+      description: MANAGER only.
+      security:
+        - bearerAuth: [MANAGER]
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RoomInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Room"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      tags: [Rooms]
+      summary: Supprimer une salle
+      description: MANAGER only.
+      security:
+        - bearerAuth: [MANAGER]
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      responses:
+        "200":
+          description: OK
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /seats:
+    get:
+      tags: [Seats]
+      summary: Liste des sièges (filtrable par salle)
+      description: Public.
+      security: []
+      parameters:
+        - name: roomId
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Seat"
+    post:
+      tags: [Seats]
+      summary: Créer un siège
+      description: MANAGER only.
+      security:
+        - bearerAuth: [MANAGER]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SeatInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Seat"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /seat/{id}:
+    get:
+      tags: [Seats]
+      summary: Détail d'un siège
+      description: Public.
+      security: []
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Seat"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    put:
+      tags: [Seats]
+      summary: Mettre à jour un siège
+      description: MANAGER only.
+      security:
+        - bearerAuth: [MANAGER]
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SeatInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Seat"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      tags: [Seats]
+      summary: Supprimer un siège
+      description: MANAGER only.
+      security:
+        - bearerAuth: [MANAGER]
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      responses:
+        "200":
+          description: OK
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /reservations:
+    get:
+      tags: [Reservations]
+      summary: Liste de toutes les réservations
+      description: MANAGER, EMPLOYEE.
+      security:
+        - bearerAuth: [MANAGER]
+        - bearerAuth: [EMPLOYEE]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Reservation"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+    post:
+      tags: [Reservations]
+      summary: Créer une réservation
+      description: CLIENT (pour soi), EMPLOYEE, MANAGER.
+      security:
+        - bearerAuth: [CLIENT]
+        - bearerAuth: [EMPLOYEE]
+        - bearerAuth: [MANAGER]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReservationInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Reservation"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /reservation/{id}:
+    get:
+      tags: [Reservations]
+      summary: Détail d'une réservation
+      description: CLIENT si propriétaire, sinon 403 (EMPLOYEE/MANAGER toujours OK).
+      security:
+        - bearerAuth: [CLIENT]
+        - bearerAuth: [EMPLOYEE]
+        - bearerAuth: [MANAGER]
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Reservation"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    put:
+      tags: [Reservations]
+      summary: Mettre à jour une réservation
+      description: EMPLOYEE, MANAGER.
+      security:
+        - bearerAuth: [EMPLOYEE]
+        - bearerAuth: [MANAGER]
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReservationInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Reservation"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      tags: [Reservations]
+      summary: Annuler une réservation
+      description: CLIENT si propriétaire, sinon 403 (EMPLOYEE/MANAGER toujours OK).
+      security:
+        - bearerAuth: [CLIENT]
+        - bearerAuth: [EMPLOYEE]
+        - bearerAuth: [MANAGER]
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      responses:
+        "200":
+          description: OK
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /user:
+    post:
+      tags: [Users]
+      summary: Inscription (création d'un compte CLIENT)
+      description: Public. Crée un CLIENT.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserRegistration"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /users:
+    get:
+      tags: [Users]
+      summary: Liste des utilisateurs
+      description: MANAGER only.
+      security:
+        - bearerAuth: [MANAGER]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /user/{id}:
+    get:
+      tags: [Users]
+      summary: Détail d'un utilisateur
+      description: Soi-même ou MANAGER.
+      security:
+        - bearerAuth: [CLIENT]
+        - bearerAuth: [EMPLOYEE]
+        - bearerAuth: [MANAGER]
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    put:
+      tags: [Users]
+      summary: Mettre à jour un utilisateur
+      description: Soi-même (hors `role`) ou MANAGER (tout).
+      security:
+        - bearerAuth: [CLIENT]
+        - bearerAuth: [EMPLOYEE]
+        - bearerAuth: [MANAGER]
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      tags: [Users]
+      summary: Supprimer un utilisateur
+      description: MANAGER only.
+      security:
+        - bearerAuth: [MANAGER]
+      parameters:
+        - $ref: "#/components/parameters/IdPath"
+      responses:
+        "200":
+          description: OK
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+components:
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Rôle porté dans le JWT.
+
+  parameters:
+    IdPath:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+  responses:
+    Forbidden:
+      description: Accès refusé
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    NotFound:
+      description: Non trouvé
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
+  schemas:
+
+    Error:
+      type: object
+      properties:
+        status:
+          type: integer
+        message:
+          type: string
+
+    Genre:
+      type: string
+      enum:
+        - THRILLER
+        - ROMANCE
+        - COMEDY
+        - DRAMA
+        - ACTION
+        - SCI-FI
+        - FANTASY
+        - ANIMATION
+
+    UserRole:
+      type: string
+      enum:
+        - CLIENT
+        - EMPLOYEE
+        - MANAGER
+
+    Room:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        number:
+          type: string
+        capacity:
+          type: integer
+
+    RoomInput:
+      type: object
+      required: [number, capacity]
+      properties:
+        number:
+          type: string
+        capacity:
+          type: integer
+
+    Seat:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        number:
+          type: string
+        roomId:
+          type: string
+          format: uuid
+
+    SeatInput:
+      type: object
+      required: [number, roomId]
+      properties:
+        number:
+          type: string
+        roomId:
+          type: string
+          format: uuid
+
+    Movie:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        genre:
+          $ref: "#/components/schemas/Genre"
+        description:
+          type: string
+        duration:
+          type: string
+          example: PT2H15M
+
+    MovieInput:
+      type: object
+      required: [title, genre, duration]
+      properties:
+        title:
+          type: string
+        genre:
+          $ref: "#/components/schemas/Genre"
+        description:
+          type: string
+        duration:
+          type: string
+          example: PT2H15M
+
+    Projection:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        datetime:
+          type: string
+          format: date-time
+        seatPrice:
+          type: number
+          format: double
+        roomId:
+          type: string
+          format: uuid
+        movieId:
+          type: string
+          format: uuid
+
+    ProjectionInput:
+      type: object
+      required: [datetime, seatPrice, roomId, movieId]
+      properties:
+        datetime:
+          type: string
+          format: date-time
+        seatPrice:
+          type: number
+          format: double
+        roomId:
+          type: string
+          format: uuid
+        movieId:
+          type: string
+          format: uuid
+
+    Reservation:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        seatId:
+          type: string
+          format: uuid
+        projectionId:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+
+    ReservationInput:
+      type: object
+      required: [seatId, projectionId]
+      properties:
+        seatId:
+          type: string
+          format: uuid
+        projectionId:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+          description: Requis si créé par EMPLOYEE/MANAGER.
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        firstName:
+          type: string
+        lastName:
+          type: string
+        birthdate:
+          type: string
+          format: date
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        role:
+          $ref: "#/components/schemas/UserRole"
+
+    UserRegistration:
+      type: object
+      required: [firstName, lastName, birthdate, email, password]
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        birthdate:
+          type: string
+          format: date
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+          writeOnly: true
+        phone:
+          type: string
+
+    UserInput:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        birthdate:
+          type: string
+          format: date
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+          writeOnly: true
+        phone:
+          type: string
+        role:
+          $ref: "#/components/schemas/UserRole"
+          description: MANAGER only.

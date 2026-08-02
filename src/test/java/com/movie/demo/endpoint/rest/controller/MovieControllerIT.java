@@ -1,16 +1,20 @@
 package com.movie.demo.endpoint.rest.controller;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.movie.demo.domain.Genre;
 import com.movie.demo.domain.Movie;
 import com.movie.demo.endpoint.rest.model.MovieInputDto;
 import com.movie.demo.repository.MovieRepository;
-import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
@@ -18,22 +22,17 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 @Testcontainers
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 public class MovieControllerIT {
 
   @Container
-  static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15-alpine")
-      .withDatabaseName("test")
-      .withUsername("test")
-      .withPassword("test");
+  static PostgreSQLContainer<?> postgres =
+      new PostgreSQLContainer<>("postgres:15-alpine")
+          .withDatabaseName("test")
+          .withUsername("test")
+          .withPassword("test");
 
   @DynamicPropertySource
   static void properties(DynamicPropertyRegistry registry) {
@@ -58,7 +57,8 @@ public class MovieControllerIT {
     m.setDuration(90);
     var saved = movieRepository.save(m);
 
-    mockMvc.perform(get("/movies").with(jwt()))
+    mockMvc
+        .perform(get("/movies").with(jwt()))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$[0].title").value("The Test Movie"));
   }
@@ -73,7 +73,8 @@ public class MovieControllerIT {
     m.setDuration(100);
     var saved = movieRepository.save(m);
 
-    mockMvc.perform(get("/movies/" + saved.getId()).with(jwt()))
+    mockMvc
+        .perform(get("/movies/" + saved.getId()).with(jwt()))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.title").value("Single Movie"));
   }
@@ -108,7 +109,9 @@ public class MovieControllerIT {
     var saved = movieRepository.save(m);
 
     mockMvc
-        .perform(delete("/movies/" + saved.getId()).with(jwt().authorities(new SimpleGrantedAuthority("ROLE_MANAGER"))))
+        .perform(
+            delete("/movies/" + saved.getId())
+                .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_MANAGER"))))
         .andExpect(status().isNoContent());
   }
 }

@@ -16,13 +16,13 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor
 public class MovieController {
 
-    private final MovieService movieService;
+  private final MovieService movieService;
 
-    @PutMapping("/movies")
-    @PreAuthorize("hasRole('MANAGER')")
-    public ResponseEntity<MovieDto> createOrUpdateMovie(
-            @RequestParam(required = false) UUID movieId, @RequestBody MovieInputDto input) {
-        var result = movieService.createOrUpdateMovie(movieId, input);
-        return ResponseEntity.ok(result);
-    }
+  @PutMapping("/movies")
+  @PreAuthorize("hasRole('MANAGER')")
+  public ResponseEntity<MovieDto> createOrUpdateMovie(
+      @RequestParam(required = false) UUID movieId, @RequestBody MovieInputDto input) {
+    var result = movieService.createOrUpdateMovie(movieId, input);
+    return ResponseEntity.ok(result);
+  }
 }

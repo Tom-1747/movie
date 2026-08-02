@@ -9,9 +9,9 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class MovieDto {
-    private UUID id;
-    private String title;
-    private Genre genre;
-    private String description;
-    private Duration duration;
+  private UUID id;
+  private String title;
+  private Genre genre;
+  private String description;
+  private Duration duration;
 }

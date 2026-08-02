@@ -1,7 +1,6 @@
 package com.movie.demo.endpoint.rest.controller.rest.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
@@ -20,11 +19,11 @@ import lombok.Setter;
 public class ProjectionInput {
   private UUID id;
 
-  @NotNull private Instant datetime;
+  private Instant datetime;
 
-  @NotNull private BigDecimal seatPrice;
+  private BigDecimal seatPrice;
 
-  @NotNull private UUID movieId;
+  private UUID movieId;
 
-  @NotNull private UUID roomId;
+  private UUID roomId;
 }

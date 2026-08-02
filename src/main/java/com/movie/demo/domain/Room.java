@@ -42,6 +42,7 @@ public class Room {
   private List<Seat> seats = new ArrayList<>();
 
   @OneToMany(mappedBy = "room")
+  @Builder.Default
   @JsonIgnore
   private List<Projection> projections = new ArrayList<>();
 }

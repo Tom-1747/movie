@@ -8,6 +8,7 @@ import java.util.UUID;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -40,4 +41,12 @@ public class MovieController {
     var result = movieService.createOrUpdateMovie(movieId, input);
     return ResponseEntity.ok(result);
   }
+
+  @DeleteMapping("/movies/{movieId}")
+  @PreAuthorize("hasRole('MANAGER')")
+  public ResponseEntity<Void> deleteMovie(@PathVariable UUID movieId) {
+    movieService.deleteMovie(movieId);
+    return ResponseEntity.noContent().build();
+  }
 }
+

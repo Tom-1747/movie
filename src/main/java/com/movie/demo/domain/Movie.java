@@ -11,6 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -19,9 +20,11 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Table(name = "movie")
+@SQLRestriction("deleted_at IS NULL")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -44,6 +47,9 @@ public class Movie {
 
   @Column(name = "duration_seconds", nullable = false)
   private Duration duration;
+
+  @Column(name = "deleted_at")
+  private Instant deletedAt;
 
   @OneToMany(mappedBy = "movie")
   @JsonIgnore

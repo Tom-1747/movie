@@ -1,11 +1,12 @@
 openapi: 3.0.3
 info:
-  title: Cinema Reservation API
-  description: API de gestion de cinéma. Autorisations par rôle par opération.
-  version: "1.0.0"
-
+  title: Cinema Booking API
+  version: 1.0.0
 servers:
   - url: https://api.cinema.example.com/v1
+
+security:
+  - bearerAuth: []
 
 tags:
   - name: Movies
@@ -15,73 +16,23 @@ tags:
   - name: Reservations
   - name: Users
 
-security:
-  - bearerAuth: []
-
 paths:
-
   /movies:
     get:
       tags: [Movies]
-      summary: Liste des films
-      description: Public.
-      security: []
+      summary: Lister les films
       responses:
         "200":
-          description: OK
+          description: OK - tous rôles
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: "#/components/schemas/Movie"
-    post:
-      tags: [Movies]
-      summary: Créer un film
-      description: MANAGER only.
-      security:
-        - bearerAuth: [MANAGER]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/MovieInput"
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Movie"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-
-  /movie/{id}:
-    get:
-      tags: [Movies]
-      summary: Détail d'un film
-      description: Public.
-      security: []
-      parameters:
-        - $ref: "#/components/parameters/IdPath"
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Movie"
-        "404":
-          $ref: "#/components/responses/NotFound"
     put:
       tags: [Movies]
-      summary: Mettre à jour un film
-      description: MANAGER only.
-      security:
-        - bearerAuth: [MANAGER]
-      parameters:
-        - $ref: "#/components/parameters/IdPath"
+      summary: Créer/modifier un film
       requestBody:
         required: true
         content:
@@ -90,93 +41,61 @@ paths:
               $ref: "#/components/schemas/MovieInput"
       responses:
         "200":
-          description: OK
+          description: MANAGER
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Movie"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: CLIENT, EMPLOYEE
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /movies/{movieId}:
+    parameters:
+      - $ref: "#/components/parameters/MovieId"
+    get:
+      tags: [Movies]
+      summary: Récupérer un film
+      responses:
+        "200":
+          description: OK - tous rôles
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Movie"
         "404":
           $ref: "#/components/responses/NotFound"
     delete:
       tags: [Movies]
       summary: Supprimer un film
-      description: MANAGER only.
-      security:
-        - bearerAuth: [MANAGER]
-      parameters:
-        - $ref: "#/components/parameters/IdPath"
       responses:
-        "200":
-          description: OK
+        "204":
+          description: MANAGER
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: CLIENT, EMPLOYEE
         "404":
           $ref: "#/components/responses/NotFound"
 
   /projections:
     get:
       tags: [Projections]
-      summary: Liste des projections
-      description: Public.
+      summary: Lister les projections
       security: []
       responses:
         "200":
-          description: OK
+          description: OK - tous
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: "#/components/schemas/Projection"
-    post:
-      tags: [Projections]
-      summary: Créer une projection
-      description: MANAGER only.
-      security:
-        - bearerAuth: [MANAGER]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/ProjectionInput"
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Projection"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-
-  /projection/{id}:
-    get:
-      tags: [Projections]
-      summary: Détail d'une projection
-      description: Public.
-      security: []
-      parameters:
-        - $ref: "#/components/parameters/IdPath"
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Projection"
-        "404":
-          $ref: "#/components/responses/NotFound"
     put:
       tags: [Projections]
-      summary: Mettre à jour une projection
-      description: MANAGER only.
-      security:
-        - bearerAuth: [MANAGER]
-      parameters:
-        - $ref: "#/components/parameters/IdPath"
+      summary: Créer/modifier une projection
       requestBody:
         required: true
         content:
@@ -185,42 +104,68 @@ paths:
               $ref: "#/components/schemas/ProjectionInput"
       responses:
         "200":
-          description: OK
+          description: MANAGER
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Projection"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: CLIENT, EMPLOYEE
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /projections/{projectionId}:
+    parameters:
+      - $ref: "#/components/parameters/ProjectionId"
+    get:
+      tags: [Projections]
+      summary: Récupérer une projection
+      security: []
+      responses:
+        "200":
+          description: OK - tous
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Projection"
         "404":
           $ref: "#/components/responses/NotFound"
     delete:
       tags: [Projections]
       summary: Supprimer une projection
-      description: MANAGER only.
-      security:
-        - bearerAuth: [MANAGER]
-      parameters:
-        - $ref: "#/components/parameters/IdPath"
       responses:
-        "200":
-          description: OK
+        "204":
+          description: MANAGER
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: CLIENT, EMPLOYEE
         "404":
           $ref: "#/components/responses/NotFound"
+
+  /projections/{projectionId}/seats:
+    parameters:
+      - $ref: "#/components/parameters/ProjectionId"
+    get:
+      tags: [Projections, Seats]
+      summary: Sièges d'une projection
+      responses:
+        "200":
+          description: OK - tous rôles authentifiés
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SeatAvailability"
 
   /rooms:
     get:
       tags: [Rooms]
-      summary: Liste des salles
-      description: MANAGER, EMPLOYEE.
-      security:
-        - bearerAuth: [MANAGER]
-        - bearerAuth: [EMPLOYEE]
+      summary: Lister les salles
       responses:
         "200":
-          description: OK
+          description: EMPLOYEE, MANAGER
           content:
             application/json:
               schema:
@@ -228,58 +173,10 @@ paths:
                 items:
                   $ref: "#/components/schemas/Room"
         "403":
-          $ref: "#/components/responses/Forbidden"
-    post:
-      tags: [Rooms]
-      summary: Créer une salle
-      description: MANAGER only.
-      security:
-        - bearerAuth: [MANAGER]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/RoomInput"
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Room"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-
-  /room/{id}:
-    get:
-      tags: [Rooms]
-      summary: Détail d'une salle
-      description: MANAGER, EMPLOYEE.
-      security:
-        - bearerAuth: [MANAGER]
-        - bearerAuth: [EMPLOYEE]
-      parameters:
-        - $ref: "#/components/parameters/IdPath"
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Room"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
+          description: CLIENT
     put:
       tags: [Rooms]
-      summary: Mettre à jour une salle
-      description: MANAGER only.
-      security:
-        - bearerAuth: [MANAGER]
-      parameters:
-        - $ref: "#/components/parameters/IdPath"
+      summary: Créer/modifier une salle
       requestBody:
         required: true
         content:
@@ -288,100 +185,60 @@ paths:
               $ref: "#/components/schemas/RoomInput"
       responses:
         "200":
-          description: OK
+          description: MANAGER
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Room"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: CLIENT, EMPLOYEE
+
+  /rooms/{roomId}:
+    parameters:
+      - $ref: "#/components/parameters/RoomId"
+    get:
+      tags: [Rooms]
+      summary: Récupérer une salle
+      responses:
+        "200":
+          description: EMPLOYEE, MANAGER
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Room"
+        "403":
+          description: CLIENT
         "404":
           $ref: "#/components/responses/NotFound"
     delete:
       tags: [Rooms]
       summary: Supprimer une salle
-      description: MANAGER only.
-      security:
-        - bearerAuth: [MANAGER]
-      parameters:
-        - $ref: "#/components/parameters/IdPath"
       responses:
-        "200":
-          description: OK
+        "204":
+          description: MANAGER
         "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
+          description: CLIENT, EMPLOYEE
 
-  /seats:
+  /rooms/{roomId}/seats:
+    parameters:
+      - $ref: "#/components/parameters/RoomId"
     get:
       tags: [Seats]
-      summary: Liste des sièges (filtrable par salle)
-      description: Public.
-      security: []
-      parameters:
-        - name: roomId
-          in: query
-          required: false
-          schema:
-            type: string
-            format: uuid
+      summary: Sièges d'une salle
       responses:
         "200":
-          description: OK
+          description: EMPLOYEE, MANAGER
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: "#/components/schemas/Seat"
-    post:
-      tags: [Seats]
-      summary: Créer un siège
-      description: MANAGER only.
-      security:
-        - bearerAuth: [MANAGER]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/SeatInput"
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Seat"
         "403":
-          $ref: "#/components/responses/Forbidden"
-
-  /seat/{id}:
-    get:
-      tags: [Seats]
-      summary: Détail d'un siège
-      description: Public.
-      security: []
-      parameters:
-        - $ref: "#/components/parameters/IdPath"
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Seat"
-        "404":
-          $ref: "#/components/responses/NotFound"
+          description: CLIENT
     put:
       tags: [Seats]
-      summary: Mettre à jour un siège
-      description: MANAGER only.
-      security:
-        - bearerAuth: [MANAGER]
-      parameters:
-        - $ref: "#/components/parameters/IdPath"
+      summary: Créer/modifier un siège
       requestBody:
         required: true
         content:
@@ -390,42 +247,21 @@ paths:
               $ref: "#/components/schemas/SeatInput"
       responses:
         "200":
-          description: OK
+          description: MANAGER
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Seat"
         "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-    delete:
-      tags: [Seats]
-      summary: Supprimer un siège
-      description: MANAGER only.
-      security:
-        - bearerAuth: [MANAGER]
-      parameters:
-        - $ref: "#/components/parameters/IdPath"
-      responses:
-        "200":
-          description: OK
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
+          description: CLIENT, EMPLOYEE
 
   /reservations:
     get:
       tags: [Reservations]
-      summary: Liste de toutes les réservations
-      description: MANAGER, EMPLOYEE.
-      security:
-        - bearerAuth: [MANAGER]
-        - bearerAuth: [EMPLOYEE]
+      summary: Lister les réservations
       responses:
         "200":
-          description: OK
+          description: EMPLOYEE, MANAGER
           content:
             application/json:
               schema:
@@ -433,15 +269,14 @@ paths:
                 items:
                   $ref: "#/components/schemas/Reservation"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: CLIENT
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
     post:
       tags: [Reservations]
       summary: Créer une réservation
-      description: CLIENT (pour soi), EMPLOYEE, MANAGER.
-      security:
-        - bearerAuth: [CLIENT]
-        - bearerAuth: [EMPLOYEE]
-        - bearerAuth: [MANAGER]
       requestBody:
         required: true
         content:
@@ -449,46 +284,39 @@ paths:
             schema:
               $ref: "#/components/schemas/ReservationInput"
       responses:
-        "200":
-          description: OK
+        "201":
+          description: CLIENT, EMPLOYEE, MANAGER
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Reservation"
-        "403":
-          $ref: "#/components/responses/Forbidden"
+        "409":
+          description: Siège déjà réservé
 
-  /reservation/{id}:
+  /reservations/{reservationId}:
+    parameters:
+      - $ref: "#/components/parameters/ReservationId"
     get:
       tags: [Reservations]
-      summary: Détail d'une réservation
-      description: CLIENT si propriétaire, sinon 403 (EMPLOYEE/MANAGER toujours OK).
-      security:
-        - bearerAuth: [CLIENT]
-        - bearerAuth: [EMPLOYEE]
-        - bearerAuth: [MANAGER]
-      parameters:
-        - $ref: "#/components/parameters/IdPath"
+      summary: Récupérer une réservation
       responses:
         "200":
-          description: OK
+          description: Propriétaire CLIENT, EMPLOYEE, MANAGER
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Reservation"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: CLIENT non propriétaire
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
         "404":
           $ref: "#/components/responses/NotFound"
     put:
       tags: [Reservations]
-      summary: Mettre à jour une réservation
-      description: EMPLOYEE, MANAGER.
-      security:
-        - bearerAuth: [EMPLOYEE]
-        - bearerAuth: [MANAGER]
-      parameters:
-        - $ref: "#/components/parameters/IdPath"
+      summary: Modifier une réservation
       requestBody:
         required: true
         content:
@@ -497,63 +325,51 @@ paths:
               $ref: "#/components/schemas/ReservationInput"
       responses:
         "200":
-          description: OK
+          description: EMPLOYEE, MANAGER
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Reservation"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: CLIENT
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
         "404":
           $ref: "#/components/responses/NotFound"
     delete:
       tags: [Reservations]
       summary: Annuler une réservation
-      description: CLIENT si propriétaire, sinon 403 (EMPLOYEE/MANAGER toujours OK).
-      security:
-        - bearerAuth: [CLIENT]
-        - bearerAuth: [EMPLOYEE]
-        - bearerAuth: [MANAGER]
-      parameters:
-        - $ref: "#/components/parameters/IdPath"
       responses:
-        "200":
-          description: OK
+        "204":
+          description: Propriétaire CLIENT, EMPLOYEE, MANAGER
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: CLIENT non propriétaire
         "404":
           $ref: "#/components/responses/NotFound"
 
-  /user:
-    post:
-      tags: [Users]
-      summary: Inscription (création d'un compte CLIENT)
-      description: Public. Crée un CLIENT.
-      security: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/UserRegistration"
+  /users/me/reservations:
+    get:
+      tags: [Users, Reservations]
+      summary: Réservations de l'utilisateur connecté
       responses:
         "200":
-          description: OK
+          description: OK - tous rôles authentifiés
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/User"
+                type: array
+                items:
+                  $ref: "#/components/schemas/Reservation"
 
   /users:
     get:
       tags: [Users]
-      summary: Liste des utilisateurs
-      description: MANAGER only.
-      security:
-        - bearerAuth: [MANAGER]
+      summary: Lister les utilisateurs
       responses:
         "200":
-          description: OK
+          description: MANAGER
           content:
             application/json:
               schema:
@@ -561,85 +377,64 @@ paths:
                 items:
                   $ref: "#/components/schemas/User"
         "403":
-          $ref: "#/components/responses/Forbidden"
+          description: CLIENT, EMPLOYEE
 
-  /user/{id}:
+  /users/{userId}:
+    parameters:
+      - $ref: "#/components/parameters/UserId"
     get:
       tags: [Users]
-      summary: Détail d'un utilisateur
-      description: Soi-même ou MANAGER.
-      security:
-        - bearerAuth: [CLIENT]
-        - bearerAuth: [EMPLOYEE]
-        - bearerAuth: [MANAGER]
-      parameters:
-        - $ref: "#/components/parameters/IdPath"
+      summary: Récupérer un utilisateur
       responses:
         "200":
-          description: OK
+          description: Soi-même ou MANAGER
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
         "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-    put:
-      tags: [Users]
-      summary: Mettre à jour un utilisateur
-      description: Soi-même (hors `role`) ou MANAGER (tout).
-      security:
-        - bearerAuth: [CLIENT]
-        - bearerAuth: [EMPLOYEE]
-        - bearerAuth: [MANAGER]
-      parameters:
-        - $ref: "#/components/parameters/IdPath"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/UserInput"
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/User"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-    delete:
-      tags: [Users]
-      summary: Supprimer un utilisateur
-      description: MANAGER only.
-      security:
-        - bearerAuth: [MANAGER]
-      parameters:
-        - $ref: "#/components/parameters/IdPath"
-      responses:
-        "200":
-          description: OK
-        "403":
-          $ref: "#/components/responses/Forbidden"
+          description: Autre CLIENT/EMPLOYEE
         "404":
           $ref: "#/components/responses/NotFound"
 
 components:
-
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
-      description: Rôle porté dans le JWT.
 
   parameters:
-    IdPath:
-      name: id
+    MovieId:
+      name: movieId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    ProjectionId:
+      name: projectionId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    RoomId:
+      name: roomId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    ReservationId:
+      name: reservationId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    UserId:
+      name: userId
       in: path
       required: true
       schema:
@@ -647,24 +442,20 @@ components:
         format: uuid
 
   responses:
-    Forbidden:
-      description: Accès refusé
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/Error"
     NotFound:
-      description: Non trouvé
+      description: Introuvable
       content:
         application/json:
           schema:
             $ref: "#/components/schemas/Error"
 
   schemas:
-
     Error:
       type: object
       properties:
+        timestamp:
+          type: string
+          format: date-time
         status:
           type: integer
         message:
@@ -672,64 +463,11 @@ components:
 
     Genre:
       type: string
-      enum:
-        - THRILLER
-        - ROMANCE
-        - COMEDY
-        - DRAMA
-        - ACTION
-        - SCI-FI
-        - FANTASY
-        - ANIMATION
+      enum: [THRILLER, ROMANCE, COMEDY, DRAMA, ACTION, SCI_FI, FANTASY, ANIMATION]
 
     UserRole:
       type: string
-      enum:
-        - CLIENT
-        - EMPLOYEE
-        - MANAGER
-
-    Room:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        number:
-          type: string
-        capacity:
-          type: integer
-
-    RoomInput:
-      type: object
-      required: [number, capacity]
-      properties:
-        number:
-          type: string
-        capacity:
-          type: integer
-
-    Seat:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        number:
-          type: string
-        roomId:
-          type: string
-          format: uuid
-
-    SeatInput:
-      type: object
-      required: [number, roomId]
-      properties:
-        number:
-          type: string
-        roomId:
-          type: string
-          format: uuid
+      enum: [CLIENT, EMPLOYEE, MANAGER]
 
     Movie:
       type: object
@@ -746,10 +484,10 @@ components:
         duration:
           type: string
           example: PT2H15M
+      required: [id, title, genre, duration]
 
     MovieInput:
       type: object
-      required: [title, genre, duration]
       properties:
         title:
           type: string
@@ -760,6 +498,56 @@ components:
         duration:
           type: string
           example: PT2H15M
+      required: [title, genre, duration]
+
+    Room:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        number:
+          type: string
+        capacity:
+          type: integer
+      required: [id, number, capacity]
+
+    RoomInput:
+      type: object
+      properties:
+        number:
+          type: string
+        capacity:
+          type: integer
+      required: [number, capacity]
+
+    Seat:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        number:
+          type: string
+        roomId:
+          type: string
+          format: uuid
+      required: [id, number, roomId]
+
+    SeatInput:
+      type: object
+      properties:
+        number:
+          type: string
+      required: [number]
+
+    SeatAvailability:
+      allOf:
+        - $ref: "#/components/schemas/Seat"
+        - type: object
+          properties:
+            available:
+              type: boolean
 
     Projection:
       type: object
@@ -773,16 +561,16 @@ components:
         seatPrice:
           type: number
           format: double
-        roomId:
-          type: string
-          format: uuid
         movieId:
           type: string
           format: uuid
+        roomId:
+          type: string
+          format: uuid
+      required: [id, datetime, seatPrice, movieId, roomId]
 
     ProjectionInput:
       type: object
-      required: [datetime, seatPrice, roomId, movieId]
       properties:
         datetime:
           type: string
@@ -790,12 +578,13 @@ components:
         seatPrice:
           type: number
           format: double
-        roomId:
-          type: string
-          format: uuid
         movieId:
           type: string
           format: uuid
+        roomId:
+          type: string
+          format: uuid
+      required: [datetime, seatPrice, movieId, roomId]
 
     Reservation:
       type: object
@@ -806,30 +595,27 @@ components:
         createdAt:
           type: string
           format: date-time
-        seatId:
+        userId:
           type: string
           format: uuid
         projectionId:
           type: string
           format: uuid
-        userId:
+        seatId:
           type: string
           format: uuid
+      required: [id, createdAt, userId, projectionId, seatId]
 
     ReservationInput:
       type: object
-      required: [seatId, projectionId]
       properties:
-        seatId:
-          type: string
-          format: uuid
         projectionId:
           type: string
           format: uuid
-        userId:
+        seatId:
           type: string
           format: uuid
-          description: Requis si créé par EMPLOYEE/MANAGER.
+      required: [projectionId, seatId]
 
     User:
       type: object
@@ -851,47 +637,4 @@ components:
           type: string
         role:
           $ref: "#/components/schemas/UserRole"
-
-    UserRegistration:
-      type: object
-      required: [firstName, lastName, birthdate, email, password]
-      properties:
-        firstName:
-          type: string
-        lastName:
-          type: string
-        birthdate:
-          type: string
-          format: date
-        email:
-          type: string
-          format: email
-        password:
-          type: string
-          format: password
-          writeOnly: true
-        phone:
-          type: string
-
-    UserInput:
-      type: object
-      properties:
-        firstName:
-          type: string
-        lastName:
-          type: string
-        birthdate:
-          type: string
-          format: date
-        email:
-          type: string
-          format: email
-        password:
-          type: string
-          format: password
-          writeOnly: true
-        phone:
-          type: string
-        role:
-          $ref: "#/components/schemas/UserRole"
-          description: MANAGER only.
+      required: [id, firstName, lastName, email, role]

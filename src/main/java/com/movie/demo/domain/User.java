@@ -54,11 +54,8 @@ public class User {
   @Column(nullable = false)
   private UserRole role;
 
-  @OneToMany(mappedBy = "maker")
+  @OneToMany(mappedBy = "user")
   @JsonIgnore
-  private List<Reservation> madeReservations = new ArrayList<>();
-
-  @OneToMany(mappedBy = "taker")
-  @JsonIgnore
-  private List<Reservation> takenReservations = new ArrayList<>();
+  @Builder.Default
+  private List<Reservation> reservations = new ArrayList<>();
 }

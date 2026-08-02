@@ -40,14 +40,15 @@ public class Projection {
   private BigDecimal seatPrice;
 
   @ManyToOne
-  @JoinColumn(name = "room_id", nullable = false)
-  private Room room;
-
-  @ManyToOne
   @JoinColumn(name = "movie_id", nullable = false)
   private Movie movie;
 
+  @ManyToOne
+  @JoinColumn(name = "room_id", nullable = false)
+  private Room room;
+
   @OneToMany(mappedBy = "projection")
   @JsonIgnore
+  @Builder.Default
   private List<Reservation> reservations = new ArrayList<>();
 }

@@ -8,7 +8,9 @@ import com.movie.demo.repository.MovieRepository;
 import java.util.List;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @AllArgsConstructor
@@ -18,6 +20,13 @@ public class MovieService {
 
   public List<MovieDto> getMovies() {
     return movieRepository.findAll().stream().map(this::toDto).toList();
+  }
+
+  public MovieDto getMovie(UUID movieId) {
+    return movieRepository
+        .findById(movieId)
+        .map(this::toDto)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
   }
 
   public MovieDto createOrUpdateMovie(UUID movieId, MovieInputDto input) {

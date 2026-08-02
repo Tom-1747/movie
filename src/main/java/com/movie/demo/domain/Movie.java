@@ -47,5 +47,6 @@ public class Movie {
 
   @OneToMany(mappedBy = "movie")
   @JsonIgnore
+  @Builder.Default
   private List<Projection> projections = new ArrayList<>();
 }

@@ -36,12 +36,8 @@ public class Reservation {
   private Instant createdAt;
 
   @ManyToOne
-  @JoinColumn(name = "maker_id", nullable = false)
-  private User maker;
-
-  @ManyToOne
-  @JoinColumn(name = "taker_id", nullable = false)
-  private User taker;
+  @JoinColumn(name = "user_id", nullable = false)
+  private User user;
 
   @ManyToOne
   @JoinColumn(name = "projection_id", nullable = false)
@@ -52,5 +48,6 @@ public class Reservation {
       name = "reservation_seat",
       joinColumns = @JoinColumn(name = "reservation_id"),
       inverseJoinColumns = @JoinColumn(name = "seat_id"))
+  @Builder.Default
   private List<Seat> seats = new ArrayList<>();
 }

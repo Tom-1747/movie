@@ -40,5 +40,6 @@ public class Seat {
 
   @ManyToMany(mappedBy = "seats")
   @JsonIgnore
+  @Builder.Default
   private List<Reservation> reservations = new ArrayList<>();
 }

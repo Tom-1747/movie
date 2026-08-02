@@ -5,6 +5,7 @@ import com.movie.demo.domain.Movie;
 import com.movie.demo.endpoint.rest.model.MovieDto;
 import com.movie.demo.endpoint.rest.model.MovieInputDto;
 import com.movie.demo.repository.MovieRepository;
+import java.util.List;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,10 @@ import org.springframework.stereotype.Service;
 public class MovieService {
 
   private final MovieRepository movieRepository;
+
+  public List<MovieDto> getMovies() {
+    return movieRepository.findAll().stream().map(this::toDto).toList();
+  }
 
   public MovieDto createOrUpdateMovie(UUID movieId, MovieInputDto input) {
     var entity =

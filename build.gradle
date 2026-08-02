@@ -36,6 +36,10 @@ configurations {
     }
 }
 
+configurations.all {
+    exclude group: 'commons-logging', module: 'commons-logging'
+}
+
 
 
 
@@ -142,13 +146,12 @@ dependencies {
     implementation 'org.openapitools:jackson-databind-nullable:0.2.6'
     implementation 'io.swagger:swagger-annotations:1.6.12'
 
-    // JWT support
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 
-    runtimeOnly 'org.postgresql:postgresql:42.6.0'
+    implementation 'org.postgresql:postgresql:42.6.0'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.testcontainers:testcontainers-junit-jupiter:2.0.2'
     testImplementation 'org.junit-pioneer:junit-pioneer:2.2.0'

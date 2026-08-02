@@ -5,6 +5,7 @@ import com.movie.demo.domain.Movie;
 import com.movie.demo.endpoint.rest.model.MovieDto;
 import com.movie.demo.endpoint.rest.model.MovieInputDto;
 import com.movie.demo.repository.MovieRepository;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -52,5 +53,14 @@ public class MovieService {
         entity.getGenre(),
         entity.getDescription(),
         entity.getDuration());
+  }
+
+  public void deleteMovie(UUID movieId) {
+    var entity =
+        movieRepository
+            .findById(movieId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    entity.setDeletedAt(Instant.now());
+    movieRepository.save(entity);
   }
 }
